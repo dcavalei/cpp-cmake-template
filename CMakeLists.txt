@@ -1,0 +1,31 @@
+cmake_minimum_required(VERSION 3.24)
+project(cpp_library_template)
+
+set(CMAKE_CXX_STANDARD 17)
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(FetchContent)
+include(util)
+
+if (CMAKE_BUILD_TYPE MATCHES "^[Dd]ebug")
+    option(BUILD_TESTS "Build tests" ON)
+    option(BUILD_EXAMPLES "Build examples" ON)
+    option(BUILD_DOC "Build documentation" ON)
+else ()
+    option(CMAKE_BUILD_TYPE "Build type" Release)
+endif ()
+
+if (PROJECT_IS_TOP_LEVEL AND BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif ()
+if (PROJECT_IS_TOP_LEVEL AND BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif ()
+if (PROJECT_IS_TOP_LEVEL AND BUILD_DOC)
+    find_package(Doxygen REQUIRED dot OPTIONAL_COMPONENTS mscgen dia)
+    doxygen_add_docs(doc COMMENT "Generate documentation" include src)
+endif ()
+
+add_subdirectory(lib)
+setup_library(NAME ${PROJECT_NAME} ALIAS lib::lib DEPENDS fmt::fmt)
